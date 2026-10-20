@@ -43,7 +43,7 @@ Benötigt PHP `^8.4` und Contao `^5.7 || ^6.0`.
    composer require digitaledinge/contao-hubspot
    ```
 
-   Danach die Datenbank mit `vendor/bin/contao-console contao:migrate` aktualisieren.
+   Danach die Datenbank mit `bin/console contao:migrate` aktualisieren.
 
 2. **Formular verbinden**
 
