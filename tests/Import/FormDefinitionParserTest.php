@@ -64,6 +64,21 @@ final class FormDefinitionParserTest extends TestCase
                             [
                                 'type' => 'row',
                                 'modules' => [[
+                                    'type' => 'hidden',
+                                    'propertyReference' => '0-1/lead_source',
+                                    'values' => ['Website'],
+                                ]],
+                            ],
+                            [
+                                'type' => 'row',
+                                'modules' => [[
+                                    'type' => 'hidden',
+                                    'propertyReference' => '0-1/utm_source',
+                                ]],
+                            ],
+                            [
+                                'type' => 'row',
+                                'modules' => [[
                                     'type' => 'fileUpload',
                                     'label' => 'CV',
                                     'required' => false,
@@ -92,6 +107,8 @@ final class FormDefinitionParserTest extends TestCase
                     'value' => 'PARTNER',
                     'label' => 'Partner',
                 ]], objectType: ObjectType::Company),
+                new ImportField('hidden', name: 'lead_source', value: 'Website', objectType: ObjectType::Contact),
+                new ImportField('hidden', name: 'utm_source', objectType: ObjectType::Contact),
                 new ImportField('submit', label: 'Send'),
             ],
             $definition->fields,

@@ -33,6 +33,7 @@ use DigitaleDinge\HubSpotBundle\HubSpot\ObjectType;
  *     label?: string,
  *     required?: bool,
  *     options?: list<Option>,
+ *     values?: list<string>,
  * }
  * @phpstan-type RenderDefinition array{form: array{modules: list<array<string, mixed>>}}
  * @phpstan-type EmbedField array{
@@ -148,6 +149,7 @@ class FormDefinitionParser
             'dropdownSelect' => $this->addProperty('select', $module),
             'radioSelect' => $this->addProperty('radio', $module),
             'multipleCheckbox' => $this->addProperty('checkbox', $module),
+            'hidden' => $this->addProperty('hidden', $module),
             'singleCheckbox' => $this->addSingleCheckbox($module),
             'dataPrivacy' => $this->addDataPrivacy($this->encodePlainTexts($module)),
             'submitButton' => $this->addSubmit($module['text'] ?? ''),
@@ -176,6 +178,7 @@ class FormDefinitionParser
             label: $module['label'] ?? '',
             mandatory: $module['required'] ?? false,
             options: $this->getOptions($module['options'] ?? []),
+            value: implode(';', $module['values'] ?? []),
             rgxp: $rgxp,
             objectType: $objectType,
         );
