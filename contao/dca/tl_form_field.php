@@ -16,6 +16,7 @@ $GLOBALS['TL_DCA']['tl_form_field']['subpalettes']['dd_hubspot_legal_'.LegalCons
 
 $GLOBALS['TL_DCA']['tl_form_field']['list']['global_operations']['dd_hubspot_import'] = [
     'icon' => 'theme_import.svg',
+    'primary' => true,
 ];
 
 $GLOBALS['TL_DCA']['tl_form_field']['fields']['dd_hubspot'] = [
