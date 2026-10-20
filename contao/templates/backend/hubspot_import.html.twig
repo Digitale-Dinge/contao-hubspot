@@ -11,6 +11,10 @@
     {% if definition is null %}
         <p class="tl_error">{{ 'import.not_found'|trans({}, 'hubspot') }}</p>
     {% else %}
+        {% if definition.captcha %}
+            <p class="tl_error">{{ 'import.captcha'|trans({}, 'hubspot')|raw }}</p>
+        {% endif %}
+
         {% if definition.unsupportedTypes %}
             <p class="tl_info">{{ 'import.unsupported'|trans({'%fields%': definition.unsupportedTypes|join(', ')}, 'hubspot') }}</p>
         {% endif %}

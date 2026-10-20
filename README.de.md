@@ -129,6 +129,9 @@ Manche HubSpot-Felder können nicht importiert werden. Sie werden übersprungen 
 - Feldtypen, die der Import nicht kennt, z. B. Datei-Uploads
 - Eigenschaften anderer Objekte als Kontakte und Unternehmen, z. B. Deals oder Tickets (etwa `0-3/dealname`)
 
+Verwendet das HubSpot-Formular ein CAPTCHA (reCAPTCHA), zeigt die Vorschau einen Fehler. Solange das CAPTCHA aktiv ist,
+lehnt HubSpot die Übermittlungen aus Contao ab. Deaktivieren Sie es deshalb in den Einstellungen des Formulars in HubSpot.
+
 > [!NOTE]
 > Der Import liest das Formular auf dieselbe Weise wie HubSpots Einbettungscode. Diese URLs gehören nicht zu HubSpots
 > dokumentierter API und können sich ändern. Kann das Formular nicht geladen werden, zeigt die Vorschau eine Warnung.

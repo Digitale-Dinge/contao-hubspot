@@ -125,6 +125,9 @@ Some HubSpot fields cannot be imported. They are skipped and listed in the previ
 - Field types the import does not know, such as file uploads
 - Properties of objects other than contacts and companies, such as deals or tickets (e.g. `0-3/dealname`)
 
+If the HubSpot form uses a CAPTCHA (reCAPTCHA), the preview shows an error. HubSpot rejects submissions from Contao as
+long as the CAPTCHA is turned on, so turn it off in the settings of the form in HubSpot.
+
 > [!NOTE]
 > The import reads the form the same way HubSpot's embed code does. These URLs are not part of HubSpot's documented
 > API and may change. If the form cannot be loaded, the preview shows a warning.

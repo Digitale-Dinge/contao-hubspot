@@ -14,6 +14,7 @@ legal_basis:
 import:
     headline: 'Import from HubSpot: %form%'
     not_found: The HubSpot form could not be loaded. Check the portal ID and the form ID in the form settings.
+    captcha: The HubSpot form uses a CAPTCHA (reCAPTCHA).<br>HubSpot rejects submissions from Contao as long as it is turned on.<br>Turn off the CAPTCHA in the settings of the form in HubSpot.
     unsupported: 'These HubSpot fields cannot be imported and were skipped: %fields%'
     append: The form already has fields. The imported fields are added at the end.
     type: Type

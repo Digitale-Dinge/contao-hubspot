@@ -13,6 +13,7 @@ readonly class FormDefinition
     public function __construct(
         public array $fields,
         public array $unsupportedTypes = [],
+        public bool $captcha = false,
     ) {
     }
 }

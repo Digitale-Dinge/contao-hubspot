@@ -79,6 +79,13 @@ final class FormDefinitionParserTest extends TestCase
                             [
                                 'type' => 'row',
                                 'modules' => [[
+                                    'type' => 'reCaptcha2',
+                                    'language' => 'en',
+                                ]],
+                            ],
+                            [
+                                'type' => 'row',
+                                'modules' => [[
                                     'type' => 'fileUpload',
                                     'label' => 'CV',
                                     'required' => false,
@@ -114,6 +121,7 @@ final class FormDefinitionParserTest extends TestCase
             $definition->fields,
         );
         $this->assertSame(['fileUpload'], $definition->unsupportedTypes);
+        $this->assertTrue($definition->captcha);
     }
 
     public function testParsesConsentCheckboxes(): void
@@ -235,6 +243,7 @@ final class FormDefinitionParserTest extends TestCase
         $definition = $this->createParser()->parseEmbedDefinition([
             'form' => [
                 'submitText' => 'Submit',
+                'captchaEnabled' => true,
                 'formFieldGroups' => [
                     [
                         'fields' => [[
@@ -306,6 +315,7 @@ final class FormDefinitionParserTest extends TestCase
             $definition->fields,
         );
         $this->assertSame(['file'], $definition->unsupportedTypes);
+        $this->assertTrue($definition->captcha);
     }
 
     public function testParsesAllPropertyTypesOfARenderDefinition(): void
@@ -380,6 +390,7 @@ final class FormDefinitionParserTest extends TestCase
             ],
             $definition->fields,
         );
+        $this->assertFalse($definition->captcha);
     }
 
     public function testParsesAllFieldTypesOfAnEmbedDefinition(): void
@@ -485,6 +496,7 @@ final class FormDefinitionParserTest extends TestCase
             ],
             $definition->fields,
         );
+        $this->assertFalse($definition->captcha);
     }
 
     public function testSkipsPropertiesOfUnsupportedObjectTypes(): void

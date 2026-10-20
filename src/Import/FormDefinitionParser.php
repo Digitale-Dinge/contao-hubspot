@@ -52,6 +52,7 @@ use DigitaleDinge\HubSpotBundle\HubSpot\ObjectType;
  *         formFieldGroups: list<EmbedGroup>,
  *         metaData: list<array{name: string, value: string}>,
  *         submitText: string,
+ *         captchaEnabled?: bool,
  *     },
  * }
  */
@@ -68,6 +69,8 @@ class FormDefinitionParser
      * @var list<string>
      */
     private array $unsupportedTypes = [];
+
+    private bool $captcha = false;
 
     public function __construct(private readonly HtmlDecoder $htmlDecoder)
     {
@@ -107,6 +110,7 @@ class FormDefinitionParser
         }
 
         $this->addSubmit($definition['form']['submitText']);
+        $this->captcha = $definition['form']['captchaEnabled'] ?? false;
 
         return $this->createFormDefinition();
     }
@@ -115,11 +119,12 @@ class FormDefinitionParser
     {
         $this->fields = [];
         $this->unsupportedTypes = [];
+        $this->captcha = false;
     }
 
     private function createFormDefinition(): FormDefinition
     {
-        return new FormDefinition($this->fields, array_values(array_unique($this->unsupportedTypes)));
+        return new FormDefinition($this->fields, array_values(array_unique($this->unsupportedTypes)), $this->captcha);
     }
 
     /**
@@ -138,6 +143,12 @@ class FormDefinitionParser
      */
     private function addModule(array $module): void
     {
+        if (str_starts_with($module['type'], 'reCaptcha')) {
+            $this->captcha = true;
+
+            return;
+        }
+
         match ($module['type']) {
             'step', 'row', 'navigationRow' => $this->addModules($module['modules'] ?? []),
             'heading' => $this->addExplanation(\sprintf('<h%1$d>%2$s</h%1$d>', $module['level'] ?? 2, StringUtil::specialchars($module['text'] ?? ''))),
