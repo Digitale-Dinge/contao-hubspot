@@ -1,0 +1,26 @@
+tl_form_field:
+    hubspot_legend: HubSpot settings
+
+    dd_hubspot_import:
+        - Import from HubSpot
+        - Import the fields of the HubSpot form
+
+    dd_hubspot:
+        - Send to HubSpot
+        - Sends this field to HubSpot, either as a property or as legal consent. For a property, the field name must match the internal name of the property.
+
+    dd_hubspot_object_type:
+        - HubSpot object
+        - The HubSpot object the property belongs to. Not used for legal consent.
+
+    dd_hubspot_legal:
+        - Legal consent
+        - Sends this field as legal consent instead of a property. The text the visitor sees is sent as consent text.
+
+    dd_hubspot_legal_basis:
+        - Legal basis
+        - Whether the legitimate interest is in a lead or in a customer.
+
+    dd_hubspot_subscription_type_id:
+        - Subscription type ID
+        - The ID of the HubSpot subscription type (e.g. newsletter) the consent or legitimate interest applies to.

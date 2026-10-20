@@ -1,0 +1,24 @@
+object_type:
+    Contact: Kontakt
+    Company: Unternehmen
+
+legal_consent:
+    Processing: Einwilligung zur Datenverarbeitung
+    Communication: Einwilligung zur Kommunikation
+    LegitimateInterest: Berechtigtes Interesse
+
+legal_basis:
+    Lead: Lead
+    Customer: Kunde
+
+import:
+    headline: 'Aus HubSpot importieren: %form%'
+    not_found: Das HubSpot-Formular konnte nicht geladen werden. Prüfen Sie die Portal-ID und die Formular-ID in den Formular-Einstellungen.
+    unsupported: 'Diese HubSpot-Felder können nicht importiert werden und wurden übersprungen: %fields%'
+    append: Das Formular hat bereits Felder. Die importierten Felder werden am Ende angefügt.
+    type: Typ
+    name: Name
+    label: Bezeichnung / Text
+    mandatory: Pflichtfeld
+    hubspot: HubSpot
+    submit: Felder importieren

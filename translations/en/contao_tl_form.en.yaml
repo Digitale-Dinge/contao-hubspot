@@ -1,0 +1,16 @@
+tl_form:
+    dd_hubspot:
+        - Send data to HubSpot
+        - Sends the submitted data to the HubSpot Forms API.
+
+    dd_hubspot_portal_id:
+        - HubSpot portal ID
+        - The ID of your HubSpot account (Hub ID).
+
+    dd_hubspot_form_id:
+        - HubSpot form ID
+        - The ID of the HubSpot form that receives the submissions.
+
+    dd_hubspot_import:
+        - Import from HubSpot
+        - Import the fields of the HubSpot form

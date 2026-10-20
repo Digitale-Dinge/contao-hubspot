@@ -1,0 +1,26 @@
+tl_form_field:
+    hubspot_legend: HubSpot-Einstellungen
+
+    dd_hubspot_import:
+        - Aus HubSpot importieren
+        - Die Felder des HubSpot-Formulars importieren
+
+    dd_hubspot:
+        - An HubSpot senden
+        - Sendet dieses Feld an HubSpot, entweder als Eigenschaft oder als rechtliche Einwilligung. Bei einer Eigenschaft muss der Feldname dem internen Namen der Eigenschaft entsprechen.
+
+    dd_hubspot_object_type:
+        - HubSpot-Objekt
+        - Das HubSpot-Objekt, zu dem die Eigenschaft gehört. Wird für rechtliche Einwilligungen nicht verwendet.
+
+    dd_hubspot_legal:
+        - Rechtliche Einwilligung
+        - Sendet dieses Feld als rechtliche Einwilligung statt als Eigenschaft. Der Text, den der Besucher sieht, wird als Einwilligungstext übermittelt.
+
+    dd_hubspot_legal_basis:
+        - Rechtsgrundlage
+        - Ob das berechtigte Interesse gegenüber einem Lead oder einem Kunden besteht.
+
+    dd_hubspot_subscription_type_id:
+        - Abonnementtyp-ID
+        - Die ID des HubSpot-Abonnementtyps (z. B. Newsletter), für den die Einwilligung oder das berechtigte Interesse gilt.

@@ -1,0 +1,71 @@
+{% trans_default_domain 'contao_default' %}
+{% extends '@Contao/be_main.html.twig' %}
+
+{% set headline = 'import.headline'|trans({'%form%': form.title}, 'hubspot') %}
+
+{% block main_content %}
+    <div id="tl_buttons">
+        <a href="{{ back_url }}" class="header_back">{{ 'MSC.backBT'|trans }}</a>
+    </div>
+
+    {% if definition is null %}
+        <p class="tl_error">{{ 'import.not_found'|trans({}, 'hubspot') }}</p>
+    {% else %}
+        {% if definition.unsupportedTypes %}
+            <p class="tl_info">{{ 'import.unsupported'|trans({'%fields%': definition.unsupportedTypes|join(', ')}, 'hubspot') }}</p>
+        {% endif %}
+
+        {% if has_fields %}
+            <p class="tl_info">{{ 'import.append'|trans({}, 'hubspot') }}</p>
+        {% endif %}
+
+        <div class="tl_listing_container">
+            <table class="tl_listing showColumns with-border with-padding">
+                <thead>
+                    <tr>
+                        <th>{{ 'import.type'|trans({}, 'hubspot') }}</th>
+                        <th>{{ 'import.name'|trans({}, 'hubspot') }}</th>
+                        <th>{{ 'import.label'|trans({}, 'hubspot') }}</th>
+                        <th>{{ 'import.mandatory'|trans({}, 'hubspot') }}</th>
+                        <th>{{ 'import.hubspot'|trans({}, 'hubspot') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for field in definition.fields %}
+                        <tr>
+                            <td>{{ ('FFL.' ~ field.type ~ '.0')|trans }}</td>
+                            <td>{{ field.name ?: '-' }}</td>
+                            <td>
+                                {{ field.label }}
+                                {% for option in field.options %}
+                                    <div>{{ option.label }}</div>
+                                {% endfor %}
+                                {{ field.text|html_to_plain_text }}
+                            </td>
+                            <td>{{ field.mandatory ? 'MSC.yes'|trans : '-' }}</td>
+                            <td>
+                                {% if field.legalConsent %}
+                                    {{ field.legalConsent.label|trans }}
+                                    {% if field.subscriptionTypeId %}({{ field.subscriptionTypeId }}){% endif %}
+                                {% elseif field.objectType %}
+                                    {{ field.objectType.label|trans }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <form method="post" class="tl_form">
+            <input type="hidden" name="REQUEST_TOKEN" value="{{ contao.request_token }}">
+            <div class="tl_formbody_submit">
+                <div class="tl_submit_container">
+                    <button type="submit" class="tl_submit">{{ 'import.submit'|trans({}, 'hubspot') }}</button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

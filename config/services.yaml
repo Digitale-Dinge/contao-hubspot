@@ -1,0 +1,60 @@
+services:
+    _defaults:
+        autoconfigure: true
+
+    digitale_dinge_hubspot.hubspot.client:
+        class: DigitaleDinge\HubSpotBundle\HubSpot\HubSpotClient
+        arguments:
+            - '@http_client'
+            - '@monolog.logger.contao.error'
+
+    digitale_dinge_hubspot.hubspot.submission_factory:
+        class: DigitaleDinge\HubSpotBundle\HubSpot\SubmissionFactory
+        arguments:
+            - '@contao.framework'
+            - '@contao.string.html_decoder'
+
+    digitale_dinge_hubspot.listener.submit_to_hubspot:
+        class: DigitaleDinge\HubSpotBundle\EventListener\SubmitToHubSpotListener
+        arguments:
+            - '@digitale_dinge_hubspot.hubspot.submission_factory'
+            - '@digitale_dinge_hubspot.hubspot.client'
+            - '@request_stack'
+
+    digitale_dinge_hubspot.listener.data_container.legal_consent_options:
+        class: DigitaleDinge\HubSpotBundle\EventListener\DataContainer\LegalConsentOptionsListener
+
+    digitale_dinge_hubspot.listener.data_container.subpalette:
+        class: DigitaleDinge\HubSpotBundle\EventListener\DataContainer\HubSpotSubpaletteListener
+
+    digitale_dinge_hubspot.listener.data_container.import_operation:
+        class: DigitaleDinge\HubSpotBundle\EventListener\DataContainer\HubSpotImportOperationListener
+        arguments:
+            - '@database_connection'
+            - '@router'
+
+    digitale_dinge_hubspot.import.parser:
+        class: DigitaleDinge\HubSpotBundle\Import\FormDefinitionParser
+        arguments:
+            - '@contao.string.html_decoder'
+
+    digitale_dinge_hubspot.import.loader:
+        class: DigitaleDinge\HubSpotBundle\Import\FormDefinitionLoader
+        arguments:
+            - '@http_client'
+            - '@digitale_dinge_hubspot.import.parser'
+
+    digitale_dinge_hubspot.import.importer:
+        class: DigitaleDinge\HubSpotBundle\Import\FormFieldImporter
+        arguments:
+            - '@database_connection'
+
+    DigitaleDinge\HubSpotBundle\Controller\Backend\HubSpotImportController:
+        arguments:
+            - '@database_connection'
+            - '@digitale_dinge_hubspot.import.loader'
+            - '@digitale_dinge_hubspot.import.importer'
+        calls:
+            - [setContainer, ['@Psr\Container\ContainerInterface']]
+        tags:
+            - controller.service_arguments

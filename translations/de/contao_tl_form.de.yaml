@@ -1,0 +1,16 @@
+tl_form:
+    dd_hubspot:
+        - Daten an HubSpot senden
+        - Sendet die übermittelten Daten an die HubSpot Forms API.
+
+    dd_hubspot_portal_id:
+        - HubSpot-Portal-ID
+        - Die ID Ihres HubSpot-Accounts (Hub-ID).
+
+    dd_hubspot_form_id:
+        - HubSpot-Formular-ID
+        - Die ID des HubSpot-Formulars, das die Einsendungen empfängt.
+
+    dd_hubspot_import:
+        - Aus HubSpot importieren
+        - Die Felder des HubSpot-Formulars importieren

@@ -1,0 +1,24 @@
+object_type:
+    Contact: Contact
+    Company: Company
+
+legal_consent:
+    Processing: Consent to process data
+    Communication: Consent to communicate
+    LegitimateInterest: Legitimate interest
+
+legal_basis:
+    Lead: Lead
+    Customer: Customer
+
+import:
+    headline: 'Import from HubSpot: %form%'
+    not_found: The HubSpot form could not be loaded. Check the portal ID and the form ID in the form settings.
+    unsupported: 'These HubSpot fields cannot be imported and were skipped: %fields%'
+    append: The form already has fields. The imported fields are added at the end.
+    type: Type
+    name: Name
+    label: Label / text
+    mandatory: Mandatory
+    hubspot: HubSpot
+    submit: Import fields

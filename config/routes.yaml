@@ -1,0 +1,3 @@
+digitale_dinge_hubspot:
+    resource: ../src/Controller
+    type: attribute
