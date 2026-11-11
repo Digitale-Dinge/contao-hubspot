@@ -72,6 +72,21 @@ The settings are in the form configuration, right after "Store data in the sessi
 
 Both IDs are part of the HubSpot form's URL and embed code.
 
+### Choose the form from a list (optional)
+
+This is experimental and not yet tested with a real token. With an access token, the form ID becomes a select menu that
+lists the forms of the HubSpot account by name. Without a token, the form ID stays a text field.
+
+1. In HubSpot, create a private app under Settings → Integrations → Private apps and give it the `forms` scope.
+2. Add its access token to the `.env.local` file of your Contao installation:
+
+   ```dotenv
+   HUBSPOT_ACCESS_TOKEN=pat-eu1-…
+   ```
+
+The list shows the forms of the account the token belongs to. If HubSpot cannot be reached, the text field is shown
+and the error is logged in the system log.
+
 ---
 
 ## Field settings
@@ -106,7 +121,8 @@ Empty fields are not sent, because HubSpot keeps a property's existing value whe
 
 Instead of creating the fields by hand, import them from the HubSpot form. Once the portal ID and the form ID are set,
 the form list and the field list show an "Import from HubSpot" button. The import first shows a preview of the fields it
-will create and only creates them after you confirm. No HubSpot access token is needed.
+will create and only creates them after you confirm. No HubSpot access token is needed, but with one the import uses
+HubSpot's documented Forms API (see [Choose the form from a list](#choose-the-form-from-a-list-optional)).
 
 | HubSpot                                     | Contao                                                                     |
 |---------------------------------------------|----------------------------------------------------------------------------|
@@ -128,9 +144,16 @@ Some HubSpot fields cannot be imported. They are skipped and listed in the previ
 If the HubSpot form uses a CAPTCHA (reCAPTCHA), the preview shows an error. HubSpot rejects submissions from Contao as
 long as the CAPTCHA is turned on, so turn it off in the settings of the form in HubSpot.
 
+The import tries these sources in order and uses the first one that loads:
+
+1. The Forms API (`/marketing/v3/forms/{formId}`), only with `HUBSPOT_ACCESS_TOKEN`
+2. The render definition that HubSpot's embed code loads
+3. The older embed definition
+
 > [!NOTE]
-> The import reads the form the same way HubSpot's embed code does. These URLs are not part of HubSpot's documented
-> API and may change. If the form cannot be loaded, the preview shows a warning.
+> The import without a token (sources 2 and 3) is tested with real HubSpot forms. Only the import from the Forms API
+> is experimental and not yet tested with a real token. Sources 2 and 3 are not part of HubSpot's documented API and
+> may change. If the form cannot be loaded, the preview shows a warning.
 
 ---
 

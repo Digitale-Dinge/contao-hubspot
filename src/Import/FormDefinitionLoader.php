@@ -13,34 +13,84 @@ readonly class FormDefinitionLoader
     public function __construct(
         private HttpClientInterface $httpClient,
         private FormDefinitionParser $parser,
+        private string|null $accessToken = null,
     ) {
     }
 
     public function load(string $portalId, string $formId): FormDefinition|null
     {
-        try {
-            if ($definition = $this->fetch(Endpoint::RenderDefinition->getUrl($portalId, $formId))) {
-                return $this->parser->parseRenderDefinition($definition);
-            }
+        return $this->loadFormDefinition($portalId, $formId)
+            ?? $this->loadRenderDefinition($portalId, $formId)
+            ?? $this->loadEmbedDefinition($portalId, $formId);
+    }
 
-            if ($definition = $this->fetch(Endpoint::EmbedDefinition->getUrl($portalId, $formId))) {
-                return $this->parser->parseEmbedDefinition($definition);
-            }
+    /**
+     * @experimental
+     */
+    private function loadFormDefinition(string $portalId, string $formId): FormDefinition|null
+    {
+        if (!$this->accessToken) {
+            return null;
+        }
+
+        try {
+            $definition = $this->fetch(
+                Endpoint::Form->getUrl($portalId, $formId),
+                [
+                    'auth_bearer' => $this->accessToken,
+                ],
+            );
+
+            return $definition ? $this->parser->parseFormDefinition($definition) : null;
         }
         catch (\JsonException|\TypeError|\ValueError) {
             return null;
         }
-
-        return null;
     }
 
     /**
-     * @return array<mixed>|null
+     * @internal
+     *
+     * @experimental
      */
-    private function fetch(string $url): array|null
+    private function loadRenderDefinition(string $portalId, string $formId): FormDefinition|null
     {
         try {
-            return $this->httpClient->request('GET', $url)->toArray();
+            $definition = $this->fetch(Endpoint::RenderDefinition->getUrl($portalId, $formId));
+
+            return $definition ? $this->parser->parseRenderDefinition($definition) : null;
+        }
+        catch (\TypeError|\ValueError) {
+            return null;
+        }
+    }
+
+    /**
+     * @internal
+     *
+     * @experimental
+     */
+    private function loadEmbedDefinition(string $portalId, string $formId): FormDefinition|null
+    {
+        try {
+            $definition = $this->fetch(Endpoint::EmbedDefinition->getUrl($portalId, $formId));
+
+            return $definition ? $this->parser->parseEmbedDefinition($definition) : null;
+        }
+        catch (\JsonException|\TypeError|\ValueError) {
+            return null;
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<mixed>|null
+     */
+    private function fetch(string $url, array $options = []): array|null
+    {
+        try {
+            return $this->httpClient->request('GET', $url, $options)->toArray();
         }
         catch (ExceptionInterface) {
             return null;

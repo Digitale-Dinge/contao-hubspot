@@ -32,6 +32,48 @@ final class FormDefinitionLoaderTest extends TestCase
         $this->assertEquals([new ImportField('submit', label: 'Send')], $definition?->fields);
     }
 
+    public function testLoadsTheFormDefinitionWithAnAccessToken(): void
+    {
+        $response = new MockResponse(json_encode([
+            'fieldGroups' => [],
+            'legalConsentOptions' => [
+                'type' => 'none',
+            ],
+            'displayOptions' => [
+                'submitButtonText' => 'Send',
+            ],
+            'configuration' => [],
+        ], JSON_THROW_ON_ERROR));
+
+        $definition = $this->createLoader([$response], 'pat-token')->load('12345', 'a1b2c3d4');
+
+        $this->assertSame('https://api.hubapi.com/marketing/v3/forms/a1b2c3d4', $response->getRequestUrl());
+        $this->assertSame(['Accept: */*', 'Authorization: Bearer pat-token'], $response->getRequestOptions()['headers']);
+        $this->assertEquals([new ImportField('submit', label: 'Send')], $definition?->fields);
+    }
+
+    public function testFallsBackToTheRenderDefinitionIfTheFormDefinitionFails(): void
+    {
+        $responses = [
+            new MockResponse('{"status":"error","category":"INVALID_AUTHENTICATION"}', [
+                'http_code' => 401,
+            ]),
+            new MockResponse(json_encode([
+                'form' => [
+                    'modules' => [[
+                        'type' => 'submitButton',
+                        'text' => 'Send',
+                    ]],
+                ],
+            ], JSON_THROW_ON_ERROR)),
+        ];
+
+        $definition = $this->createLoader($responses, 'pat-token')->load('12345', 'a1b2c3d4');
+
+        $this->assertSame('https://forms.hsforms.com/embed/v4/render-definition/12345/a1b2c3d4', $responses[1]->getRequestUrl());
+        $this->assertEquals([new ImportField('submit', label: 'Send')], $definition?->fields);
+    }
+
     public function testFallsBackToTheEmbedDefinitionForOlderForms(): void
     {
         $responses = [
@@ -108,11 +150,12 @@ final class FormDefinitionLoaderTest extends TestCase
     /**
      * @param list<MockResponse> $responses
      */
-    private function createLoader(array $responses): FormDefinitionLoader
+    private function createLoader(array $responses, string|null $accessToken = null): FormDefinitionLoader
     {
         return new FormDefinitionLoader(
             new MockHttpClient($responses),
             new FormDefinitionParser(new HtmlDecoder($this->createStub(InsertTagParser::class))),
+            $accessToken,
         );
     }
 }

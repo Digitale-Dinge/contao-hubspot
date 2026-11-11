@@ -27,6 +27,19 @@ services:
     digitale_dinge_hubspot.listener.data_container.subpalette:
         class: DigitaleDinge\HubSpotBundle\EventListener\DataContainer\HubSpotSubpaletteListener
 
+    digitale_dinge_hubspot.hubspot.form_list_loader:
+        class: DigitaleDinge\HubSpotBundle\HubSpot\FormListLoader
+        arguments:
+            - '@http_client'
+            - '@monolog.logger.contao.error'
+            - '%env(default::HUBSPOT_ACCESS_TOKEN)%'
+
+    digitale_dinge_hubspot.listener.data_container.form_id:
+        class: DigitaleDinge\HubSpotBundle\EventListener\DataContainer\HubSpotFormIdListener
+        arguments:
+            - '@digitale_dinge_hubspot.hubspot.form_list_loader'
+            - '@request_stack'
+
     digitale_dinge_hubspot.listener.data_container.import_operation:
         class: DigitaleDinge\HubSpotBundle\EventListener\DataContainer\HubSpotImportOperationListener
         arguments:
@@ -43,6 +56,7 @@ services:
         arguments:
             - '@http_client'
             - '@digitale_dinge_hubspot.import.parser'
+            - '%env(default::HUBSPOT_ACCESS_TOKEN)%'
 
     digitale_dinge_hubspot.import.importer:
         class: DigitaleDinge\HubSpotBundle\Import\FormFieldImporter

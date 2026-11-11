@@ -73,6 +73,22 @@ Die Einstellungen stehen in der Formular-Konfiguration, direkt nach „Eingaben 
 
 Beide IDs stehen in der URL und im Einbettungscode des HubSpot-Formulars.
 
+### Formular aus einer Liste wählen (optional)
+
+Dies ist experimentell und noch nicht mit einem echten Token getestet. Mit einem Zugangstoken wird die Formular-ID zu
+einem Auswahlmenü, das die Formulare des HubSpot-Accounts mit Namen auflistet. Ohne Token bleibt die Formular-ID ein
+Textfeld.
+
+1. Legen Sie in HubSpot unter Einstellungen → Integrationen → Private Apps eine private App mit dem Scope `forms` an.
+2. Tragen Sie ihr Zugangstoken in die Datei `.env.local` Ihrer Contao-Installation ein:
+
+   ```dotenv
+   HUBSPOT_ACCESS_TOKEN=pat-eu1-…
+   ```
+
+Die Liste zeigt die Formulare des Accounts, zu dem das Token gehört. Ist HubSpot nicht erreichbar, erscheint das
+Textfeld und der Fehler steht im Systemlog.
+
 ---
 
 ## Feld-Einstellungen
@@ -109,7 +125,8 @@ Leere Felder werden nicht gesendet, weil HubSpot bei einem leeren Wert den bishe
 Statt die Felder von Hand anzulegen, können Sie sie aus dem HubSpot-Formular importieren. Sobald die Portal-ID und die
 Formular-ID eingetragen sind, zeigen die Formularliste und die Feldliste die Schaltfläche „Aus HubSpot importieren“. Der
 Import zeigt zuerst eine Vorschau der Felder, die er anlegen wird, und legt sie erst nach Ihrer Bestätigung an. Ein
-HubSpot-Zugangstoken ist nicht nötig.
+HubSpot-Zugangstoken ist nicht nötig, mit einem nutzt der Import aber HubSpots dokumentierte Forms API (siehe
+[Formular aus einer Liste wählen](#formular-aus-einer-liste-wählen-optional)).
 
 | HubSpot                                        | Contao                                                                     |
 |------------------------------------------------|----------------------------------------------------------------------------|
@@ -132,8 +149,15 @@ Manche HubSpot-Felder können nicht importiert werden. Sie werden übersprungen 
 Verwendet das HubSpot-Formular ein CAPTCHA (reCAPTCHA), zeigt die Vorschau einen Fehler. Solange das CAPTCHA aktiv ist,
 lehnt HubSpot die Übermittlungen aus Contao ab. Deaktivieren Sie es deshalb in den Einstellungen des Formulars in HubSpot.
 
+Der Import versucht diese Quellen der Reihe nach und nutzt die erste, die sich laden lässt:
+
+1. Die Forms API (`/marketing/v3/forms/{formId}`), nur mit `HUBSPOT_ACCESS_TOKEN`
+2. Die Render-Definition, die HubSpots Einbettungscode lädt
+3. Die ältere Embed-Definition
+
 > [!NOTE]
-> Der Import liest das Formular auf dieselbe Weise wie HubSpots Einbettungscode. Diese URLs gehören nicht zu HubSpots
+> Der Import ohne Token (Quellen 2 und 3) ist mit echten HubSpot-Formularen getestet. Nur der Import über die Forms API
+> ist experimentell und noch nicht mit einem echten Token getestet. Die Quellen 2 und 3 gehören nicht zu HubSpots
 > dokumentierter API und können sich ändern. Kann das Formular nicht geladen werden, zeigt die Vorschau eine Warnung.
 
 ---
