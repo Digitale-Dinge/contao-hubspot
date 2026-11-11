@@ -33,6 +33,8 @@ parameters:
             paths:
                 - contao/dca/*
                 - src/EventListener/DataContainer/HubSpotSubpaletteListener.php
+                - src/EventListener/DataContainer/HubSpotFormIdListener.php
+                - tests/EventListener/DataContainer/HubSpotFormIdListenerTest.php
                 - tests/EventListener/DataContainer/HubSpotSubpaletteListenerTest.php
         -
             identifiers: [method.nonObject, return.type]

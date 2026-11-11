@@ -55,10 +55,51 @@ use DigitaleDinge\HubSpotBundle\HubSpot\ObjectType;
  *         captchaEnabled?: bool,
  *     },
  * }
+ * @phpstan-type FormField array{
+ *     objectTypeId: string,
+ *     name: string,
+ *     label: string,
+ *     required: bool,
+ *     hidden: bool,
+ *     fieldType: string,
+ *     defaultValue?: string,
+ *     defaultValues?: list<string>,
+ *     options?: list<Option>,
+ * }
+ * @phpstan-type FormFieldGroup array{richText?: string, fields: list<FormField>}
+ * @phpstan-type LegalConsentOptions array{
+ *     type: string,
+ *     lawfulBasis?: string,
+ *     subscriptionTypeIds?: list<int>,
+ *     communicationConsentText?: string,
+ *     communicationsCheckboxes?: list<array{subscriptionTypeId: int, required: bool, label: string}>,
+ *     consentToProcessCheckboxLabel?: string,
+ *     consentToProcessText?: string,
+ *     privacyText?: string,
+ * }
+ * @phpstan-type HubSpotFormDefinition array{
+ *     fieldGroups: list<FormFieldGroup>,
+ *     legalConsentOptions: LegalConsentOptions,
+ *     displayOptions: array{submitButtonText: string},
+ *     configuration: array{recaptchaEnabled?: bool},
+ * }
  */
 class FormDefinitionParser
 {
     private const array DATA_PRIVACY_TEXTS = ['communicationConsentText', 'processingConsentText', 'privacyPolicyText'];
+
+    private const array EMBED_FIELD_TYPES = [
+        'email' => 'text',
+        'single_line_text' => 'text',
+        'phone' => 'phonenumber',
+        'mobile_phone' => 'phonenumber',
+        'number' => 'number',
+        'multi_line_text' => 'textarea',
+        'dropdown' => 'select',
+        'radio' => 'radio',
+        'multiple_checkboxes' => 'checkbox',
+        'single_checkbox' => 'booleancheckbox',
+    ];
 
     /**
      * @var list<ImportField>
@@ -78,6 +119,78 @@ class FormDefinitionParser
 
     /**
      * @param array<mixed> $definition
+     *
+     * @experimental
+     */
+    public function parseFormDefinition(array $definition): FormDefinition
+    {
+        /** @var HubSpotFormDefinition $definition */
+        $consent = $definition['legalConsentOptions'];
+
+        $dataPrivacy = match ($consent['type']) {
+            'legitimate_interest' => [
+                'isLegitimateInterest' => true,
+                'legitimateInterestSubscriptionTypes' => $consent['subscriptionTypeIds'] ?? [],
+                'legitimateInterestLegalBasis' => strtoupper($consent['lawfulBasis'] ?? ''),
+                'privacyPolicyText' => $consent['privacyText'] ?? '',
+            ],
+            'explicit_consent_to_process', 'implicit_consent_to_process' => [
+                'communicationConsentText' => $consent['communicationConsentText'] ?? '',
+                'communicationConsentCheckboxes' => array_map(
+                    static fn (array $checkbox): array => [
+                        'communicationTypeId' => $checkbox['subscriptionTypeId'],
+                        'required' => $checkbox['required'],
+                        'label' => $checkbox['label'],
+                    ],
+                    $consent['communicationsCheckboxes'] ?? [],
+                ),
+                'processingConsentType' => 'explicit_consent_to_process' === $consent['type'] ? 'REQUIRED_CHECKBOX' : 'IMPLICIT',
+                'processingConsentText' => $consent['consentToProcessText'] ?? '',
+                'processingConsentCheckboxLabel' => $consent['consentToProcessCheckboxLabel'] ?? '',
+                'privacyPolicyText' => $consent['privacyText'] ?? '',
+            ],
+            default => null,
+        };
+
+        return $this->parseEmbedDefinition([
+            'form' => [
+                'formFieldGroups' => array_map(
+                    static fn (array $group): array => [
+                        'richText' => [
+                            'content' => $group['richText'] ?? '',
+                        ],
+                        'fields' => array_map(
+                            static fn (array $field): array => [
+                                'name' => $field['name'],
+                                'label' => $field['label'],
+                                'required' => $field['required'],
+                                'hidden' => $field['hidden'],
+                                'fieldType' => self::EMBED_FIELD_TYPES[$field['fieldType']] ?? $field['fieldType'],
+                                'objectTypeId' => $field['objectTypeId'],
+                                'defaultValue' => implode(';', $field['defaultValues'] ?? [$field['defaultValue'] ?? '']),
+                                'options' => $field['options'] ?? [],
+                            ],
+                            $group['fields'],
+                        ),
+                    ],
+                    $definition['fieldGroups'],
+                ),
+                'metaData' => $dataPrivacy ? [[
+                    'name' => 'legalConsentOptions',
+                    'value' => json_encode($dataPrivacy, JSON_THROW_ON_ERROR),
+                ]] : [],
+                'submitText' => $definition['displayOptions']['submitButtonText'],
+                'captchaEnabled' => $definition['configuration']['recaptchaEnabled'] ?? false,
+            ],
+        ]);
+    }
+
+    /**
+     * @param array<mixed> $definition
+     *
+     * @internal
+     *
+     * @experimental
      */
     public function parseRenderDefinition(array $definition): FormDefinition
     {
@@ -90,6 +203,10 @@ class FormDefinitionParser
 
     /**
      * @param array<mixed> $definition
+     *
+     * @internal
+     *
+     * @experimental
      */
     public function parseEmbedDefinition(array $definition): FormDefinition
     {

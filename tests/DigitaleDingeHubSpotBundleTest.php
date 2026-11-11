@@ -24,7 +24,7 @@ final class DigitaleDingeHubSpotBundleTest extends TestCase
             ARRAY_FILTER_USE_KEY,
         );
 
-        $this->assertCount(10, $services);
+        $this->assertCount(12, $services);
 
         foreach ($services as $id => $definition) {
             $this->assertTrue(class_exists($definition->getClass() ?? $id), $id);

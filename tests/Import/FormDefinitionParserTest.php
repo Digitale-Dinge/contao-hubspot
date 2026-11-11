@@ -548,6 +548,285 @@ final class FormDefinitionParserTest extends TestCase
         $this->assertSame(['0-3/dealname'], $definition->unsupportedTypes);
     }
 
+    public function testParsesAllFieldTypesOfAFormDefinition(): void
+    {
+        $field = [
+            'objectTypeId' => '0-1',
+            'required' => false,
+            'hidden' => false,
+        ];
+
+        $options = [
+            [
+                'label' => 'Web',
+                'value' => 'web',
+                'displayOrder' => 0,
+            ],
+        ];
+
+        $definition = $this->createParser()->parseFormDefinition($this->createFormDefinition([
+            [
+                'richText' => '<p>Your details</p>',
+                'fields' => [
+                    [
+                        ...$field,
+                        'fieldType' => 'email',
+                        'name' => 'email',
+                        'label' => 'Email',
+                        'required' => true,
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'phone',
+                        'name' => 'phone',
+                        'label' => 'Phone',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'mobile_phone',
+                        'name' => 'mobilephone',
+                        'label' => 'Mobile',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'single_line_text',
+                        'name' => 'firstname',
+                        'label' => 'First name',
+                        'defaultValue' => 'Jane',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'number',
+                        'name' => 'employees',
+                        'label' => 'Employees',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'multi_line_text',
+                        'name' => 'message',
+                        'label' => 'Message',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'dropdown',
+                        'name' => 'source',
+                        'label' => 'Source',
+                        'options' => $options,
+                        'defaultValues' => [],
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'radio',
+                        'name' => 'channel',
+                        'label' => 'Channel',
+                        'options' => $options,
+                        'defaultValues' => ['web'],
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'multiple_checkboxes',
+                        'name' => 'topics',
+                        'label' => 'Topics',
+                        'options' => $options,
+                        'defaultValues' => [],
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'single_checkbox',
+                        'name' => 'callback',
+                        'label' => 'Call me back',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'single_line_text',
+                        'name' => 'campaign',
+                        'label' => 'Campaign',
+                        'hidden' => true,
+                        'defaultValue' => 'spring',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'datepicker',
+                        'name' => 'date',
+                        'label' => 'Date',
+                    ],
+                    [
+                        ...$field,
+                        'fieldType' => 'file',
+                        'name' => 'upload',
+                        'label' => 'Upload',
+                    ],
+                    [
+                        ...$field,
+                        'objectTypeId' => '0-2',
+                        'fieldType' => 'single_line_text',
+                        'name' => 'name',
+                        'label' => 'Company',
+                    ],
+                    [
+                        ...$field,
+                        'objectTypeId' => '0-3',
+                        'fieldType' => 'single_line_text',
+                        'name' => 'dealname',
+                        'label' => 'Deal',
+                    ],
+                ],
+            ],
+        ]));
+
+        $contact = ObjectType::Contact;
+        $option = [[
+            'value' => 'web',
+            'label' => 'Web',
+        ]];
+
+        $this->assertEquals(
+            [
+                new ImportField('explanation', text: '<p>Your details</p>'),
+                new ImportField('text', name: 'email', label: 'Email', mandatory: true, rgxp: 'email', objectType: $contact),
+                new ImportField('text', name: 'phone', label: 'Phone', objectType: $contact),
+                new ImportField('text', name: 'mobilephone', label: 'Mobile', objectType: $contact),
+                new ImportField('text', name: 'firstname', label: 'First name', objectType: $contact),
+                new ImportField('text', name: 'employees', label: 'Employees', rgxp: 'digit', objectType: $contact),
+                new ImportField('textarea', name: 'message', label: 'Message', objectType: $contact),
+                new ImportField('select', name: 'source', label: 'Source', options: $option, objectType: $contact),
+                new ImportField('radio', name: 'channel', label: 'Channel', options: $option, objectType: $contact),
+                new ImportField('checkbox', name: 'topics', label: 'Topics', options: $option, objectType: $contact),
+                new ImportField('checkbox', name: 'callback', label: 'Call me back', options: [[
+                    'value' => 'true',
+                    'label' => 'Call me back',
+                ]], objectType: $contact),
+                new ImportField('hidden', name: 'campaign', value: 'spring', objectType: $contact),
+                new ImportField('text', name: 'name', label: 'Company', objectType: ObjectType::Company),
+                new ImportField('submit', label: 'Submit'),
+            ],
+            $definition->fields,
+        );
+        $this->assertSame(['datepicker', 'file', '0-3/dealname'], $definition->unsupportedTypes);
+        $this->assertFalse($definition->captcha);
+    }
+
+    public function testParsesTheCaptchaOfAFormDefinition(): void
+    {
+        $definition = $this->createParser()->parseFormDefinition($this->createFormDefinition([], configuration: [
+            'recaptchaEnabled' => true,
+        ]));
+
+        $this->assertTrue($definition->captcha);
+    }
+
+    public function testParsesExplicitConsentToProcessOfAFormDefinition(): void
+    {
+        $definition = $this->createParser()->parseFormDefinition($this->createFormDefinition([], [
+            'type' => 'explicit_consent_to_process',
+            'communicationConsentText' => '<p>We would like to contact you.</p>',
+            'communicationsCheckboxes' => [[
+                'subscriptionTypeId' => 123,
+                'required' => false,
+                'label' => '<p>I agree to receive <strong>newsletters</strong>.</p>',
+            ]],
+            'consentToProcessText' => '<p>We need to store your data.</p>',
+            'consentToProcessCheckboxLabel' => '<p>I agree to the storage.</p>',
+            'privacyText' => '<p>You can unsubscribe at any time.</p>',
+        ]));
+
+        $this->assertEquals(
+            [
+                new ImportField('explanation', text: '<p>We would like to contact you.</p>'),
+                new ImportField(
+                    'checkbox',
+                    name: 'subscription_type_123',
+                    options: [[
+                        'value' => 'true',
+                        'label' => 'I agree to receive newsletters.',
+                    ]],
+                    legalConsent: LegalConsent::Communication,
+                    subscriptionTypeId: 123,
+                ),
+                new ImportField('explanation', text: '<p>We need to store your data.</p>'),
+                new ImportField(
+                    'checkbox',
+                    name: 'processing_consent',
+                    mandatory: true,
+                    options: [[
+                        'value' => 'true',
+                        'label' => 'I agree to the storage.',
+                    ]],
+                    legalConsent: LegalConsent::Processing,
+                ),
+                new ImportField('explanation', text: '<p>You can unsubscribe at any time.</p>'),
+                new ImportField('submit', label: 'Submit'),
+            ],
+            $definition->fields,
+        );
+    }
+
+    public function testParsesImplicitConsentToProcessOfAFormDefinition(): void
+    {
+        $definition = $this->createParser()->parseFormDefinition($this->createFormDefinition([], [
+            'type' => 'implicit_consent_to_process',
+            'communicationsCheckboxes' => [],
+            'consentToProcessText' => '<p>By clicking submit, you consent to the processing of your data.</p>',
+            'privacyText' => '',
+        ]));
+
+        $this->assertEquals(
+            [
+                new ImportField('explanation', text: '<p>By clicking submit, you consent to the processing of your data.</p>', legalConsent: LegalConsent::Processing),
+                new ImportField('submit', label: 'Submit'),
+            ],
+            $definition->fields,
+        );
+    }
+
+    public function testParsesLegitimateInterestOfAFormDefinition(): void
+    {
+        $definition = $this->createParser()->parseFormDefinition($this->createFormDefinition([], [
+            'type' => 'legitimate_interest',
+            'lawfulBasis' => 'client',
+            'subscriptionTypeIds' => [789, 321],
+            'privacyText' => '<p>We will contact you about our products.</p>',
+        ]));
+
+        $this->assertEquals(
+            [
+                new ImportField(
+                    'explanation',
+                    text: '<p>We will contact you about our products.</p>',
+                    legalConsent: LegalConsent::LegitimateInterest,
+                    subscriptionTypeId: 789,
+                    legalBasis: LegalBasis::Customer,
+                ),
+                new ImportField('submit', label: 'Submit'),
+            ],
+            $definition->fields,
+        );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $fieldGroups
+     * @param array<string, mixed>       $legalConsentOptions
+     * @param array<string, mixed>       $configuration
+     *
+     * @return array<string, mixed>
+     */
+    private function createFormDefinition(array $fieldGroups, array $legalConsentOptions = [ 'type' => 'none', ], array $configuration = []): array
+    {
+        return [
+            'id' => 'a1b2c3d4',
+            'name' => 'Contact',
+            'fieldGroups' => $fieldGroups,
+            'legalConsentOptions' => $legalConsentOptions,
+            'displayOptions' => [
+                'submitButtonText' => 'Submit',
+            ],
+            'configuration' => [
+                'recaptchaEnabled' => false,
+                ...$configuration,
+            ],
+        ];
+    }
+
     private function createParser(): FormDefinitionParser
     {
         return new FormDefinitionParser(new HtmlDecoder($this->createStub(InsertTagParser::class)));

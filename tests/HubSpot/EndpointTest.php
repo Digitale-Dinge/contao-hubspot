@@ -20,6 +20,8 @@ final class EndpointTest extends TestCase
     {
         yield 'submit' => [Endpoint::Submit, 'https://api.hsforms.com/submissions/v3/integration/submit/12345/a1b2c3d4'];
         yield 'render definition' => [Endpoint::RenderDefinition, 'https://forms.hsforms.com/embed/v4/render-definition/12345/a1b2c3d4'];
+        yield 'form' => [Endpoint::Form, 'https://api.hubapi.com/marketing/v3/forms/a1b2c3d4'];
+        yield 'forms' => [Endpoint::Forms, 'https://api.hubapi.com/marketing/v3/forms/'];
         yield 'embed definition' => [Endpoint::EmbedDefinition, 'https://forms.hsforms.com/embed/v3/form/12345/a1b2c3d4/json'];
     }
 }
